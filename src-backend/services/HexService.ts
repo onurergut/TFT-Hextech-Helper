@@ -14,6 +14,7 @@ import { settingsStore } from "../utils/SettingsStore.ts";
 import { TFTMode } from "../TFTProtocol.ts";
 import { notifyStatsUpdated, notifyStopAfterGameState, notifyScheduledStopTriggered, showToast } from "../utils/ToastBridge.ts";
 import { analyticsManager, AnalyticsEvent } from "../utils/AnalyticsManager.ts";
+import { StrategyExecutionRegistry } from "./StrategyExecutionRegistry.ts";
 
 /** 状态转换间隔 (ms) - 设置较短以提高状态切换响应速度 */
 const STATE_TRANSITION_DELAY_MS = 200;
@@ -24,6 +25,7 @@ const STATE_TRANSITION_DELAY_MS = 200;
  */
 export class HexService {
     private static instance: HexService | null = null;
+    private readonly executionRegistry = new StrategyExecutionRegistry();
 
     /** 取消控制器，用于优雅停止 */
     private abortController: AbortController | null = null;
@@ -254,6 +256,7 @@ export class HexService {
             logger.info("———————— [HexService] ————————");
             logger.info("[HexService] 海克斯科技，启动！");
 
+            this.executionRegistry.begin('hex-start');
             this.abortController = new AbortController();
             this.currentState = new StartState();
             this._stopAfterCurrentGame = false;  // 重置“本局结束后停止”标志

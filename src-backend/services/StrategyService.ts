@@ -42,6 +42,8 @@ import {TFT_4_TRAIT_DATA} from "../TFTInfo/trait";
 import {UNSELLABLE_BOARD_UNITS} from "../TFTInfo/chess";
 import {mouseController, MouseButtonType, BenchUnit, BenchLocation, BoardUnit, BoardLocation} from "../tft";
 import {sleep} from "../utils/HelperTools";
+import { StrategyExecutionRegistry } from "./StrategyExecutionRegistry.ts";
+import type { ExecutionContext } from "./ExecutionGuard.ts";
 
 /**
  * 阵容选择状态枚举
@@ -109,6 +111,7 @@ enum SingleBuyResult {
  */
 export class StrategyService {
     private static instance: StrategyService;
+    private readonly executionRegistry = new StrategyExecutionRegistry();
 
     /** 当前选中的阵容配置（运行时缓存，锁定后才有值） */
     private currentLineup: LineupConfig | null = null;
@@ -178,6 +181,14 @@ export class StrategyService {
             StrategyService.instance = new StrategyService();
         }
         return StrategyService.instance;
+    }
+
+    public beginExecution(reason: string): ExecutionContext {
+        return this.executionRegistry.begin(reason);
+    }
+
+    public currentExecution(): ExecutionContext | null {
+        return this.executionRegistry.current();
     }
 
     // ============================================================
@@ -253,6 +264,8 @@ export class StrategyService {
             logger.debug(`[StrategyService] 游戏已结束，忽略阶段事件: ${event.stageText}`);
             return;
         }
+
+        this.beginExecution(`stage-${event.stageText}`);
 
         const {type, stage, round} = event;
 
