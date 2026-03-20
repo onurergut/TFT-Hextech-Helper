@@ -267,14 +267,8 @@ export class LobbyState implements IState {
     private async leaveLobbyWithRetry(signal: AbortSignal): Promise<boolean> {
         let attempt = 0;
         
-        while (true) {
+        while (!signal.aborted) {
             attempt++;
-            
-            // 检查是否已取消
-            if (signal.aborted) {
-                logger.info("[LobbyState] 收到取消信号，停止退出房间重试");
-                return false;
-            }
 
             try {
                 logger.info(`[LobbyState] 正在退出房间... (第 ${attempt} 次尝试)`);
@@ -302,6 +296,9 @@ export class LobbyState implements IState {
                 await sleep(LEAVE_LOBBY_RETRY_DELAY_MS);
             }
         }
+
+        logger.info("[LobbyState] 收到取消信号，停止退出房间重试");
+        return false;
     }
 
     /**

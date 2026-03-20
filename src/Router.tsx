@@ -1,6 +1,6 @@
 // 喵~ 使用 React.lazy 实现路由懒加载，优化初始加载速度
 import {lazy, Suspense} from "react";
-import {createHashRouter, Navigate} from "react-router-dom";
+import {createHashRouter} from "react-router-dom";
 import MainLayout from "./components/MainLayout.tsx";
 import ErrorPage from "./components/pages/ErrorPage.tsx";
 import {HomePage} from "./components/pages/HomePage.tsx";
@@ -11,15 +11,7 @@ const SettingsPage = lazy(() => import('./components/pages/SettingsPage'));
 const LineupsPage = lazy(() => import('./components/pages/LineupsPage')); // 阵容搭配页面
 
 
-const LoadingSpinner = () => (
-    <div className="w-full h-full flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div>
-    </div>
-)
-
-
-
-export const router = createHashRouter([
+const router = createHashRouter([
     {
         path: RoutePath.HOME,
         element: <MainLayout/>, // 使用我们的主布局
@@ -29,7 +21,7 @@ export const router = createHashRouter([
             {
                 index:true,
                 element: (
-                    <Suspense fallback={<LoadingSpinner/>}>
+                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div></div>}>
                         <HomePage/>
                     </Suspense>
                 )
@@ -38,7 +30,7 @@ export const router = createHashRouter([
                 // 去掉开头的 '/'，因为这是嵌套路由
                 path: RoutePath.LINEUPS.slice(1),
                 element: (
-                    <Suspense fallback={<LoadingSpinner/>}>
+                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div></div>}>
                         <LineupsPage/>
                     </Suspense>
                 )
@@ -46,7 +38,7 @@ export const router = createHashRouter([
             {
                 path: RoutePath.DEBUG.slice(1),
                 element: (
-                    <Suspense fallback={<LoadingSpinner/>}>
+                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div></div>}>
                         <DebugPage/>
                     </Suspense>
                 )
@@ -54,7 +46,7 @@ export const router = createHashRouter([
             {
                 path: RoutePath.SETTINGS.slice(1),
                 element: (
-                    <Suspense fallback={<LoadingSpinner/>}>
+                    <Suspense fallback={<div className="w-full h-full flex items-center justify-center"><div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-indigo-400"></div></div>}>
                         <SettingsPage/>
                     </Suspense>
                 )
@@ -62,3 +54,5 @@ export const router = createHashRouter([
         ]
     },
 ]);
+
+export default router

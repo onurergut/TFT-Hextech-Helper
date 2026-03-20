@@ -1,5 +1,5 @@
 import './App.css'
-import {router} from "./Router.tsx";
+import router from "./Router.tsx";
 import {RouterProvider} from "react-router-dom";
 import {ThemeProvider} from "styled-components";
 import {lightTheme} from "./styles/theme.ts";
@@ -25,7 +25,6 @@ function App() {
 
     // 监听主进程发来的 Toast 事件
     useEffect(() => {
-        // @ts-ignore - window.ipc 由 preload.ts 暴露
         const cleanup = window.ipc?.on('show-toast', (payload: ToastPayload) => {
             toast(payload.message, {
                 type: payload.type || 'info',

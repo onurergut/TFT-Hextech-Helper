@@ -609,8 +609,9 @@ const ChampionAvatar = styled.div<{ $isCore: boolean; $cost?: number; $rotateX?:
   /* 根据英雄费用显示不同颜色的边框 */
   border: 2.5px solid ${props => {
       const cost = props.$cost;
-      // @ts-ignore
-      const color = props.theme.colors.championCost[cost];
+      const color = cost !== undefined
+        ? props.theme.colors.championCost[cost as keyof typeof props.theme.colors.championCost]
+        : undefined;
       return color || props.theme.colors.championCost.default;
   }};
   
@@ -755,8 +756,9 @@ const SmallChampionAvatar = styled.div<{ $cost?: number; theme: ThemeType }>`
   overflow: hidden;
   border: 2px solid ${props => {
     const cost = props.$cost;
-    // @ts-ignore
-    const color = props.theme.colors.championCost[cost];
+    const color = cost !== undefined
+      ? props.theme.colors.championCost[cost as keyof typeof props.theme.colors.championCost]
+      : undefined;
     return color || props.theme.colors.championCost.default;
   }};
   background-color: ${props => props.theme.colors.elementBg};
@@ -1958,7 +1960,7 @@ const LineupsPage: React.FC = () => {
     const [tempEquips, setTempEquips] = useState<string[]>([]);
 
     /** 等级配置：等级数字、key、是否必填 */
-    const LEVEL_CONFIG = [
+    const LEVEL_CONFIG = useMemo(() => [
         { level: 4, key: 'level4', required: true },
         { level: 5, key: 'level5', required: true },
         { level: 6, key: 'level6', required: true },
@@ -1966,7 +1968,7 @@ const LineupsPage: React.FC = () => {
         { level: 8, key: 'level8', required: true },
         { level: 9, key: 'level9', required: false },
         { level: 10, key: 'level10', required: false },
-    ];
+    ], []);
 
     /**
      * 按费用分组当前赛季的所有棋子
@@ -2005,9 +2007,9 @@ const LineupsPage: React.FC = () => {
     };
 
     /** 关闭弹窗 */
-    const closeCreateModal = () => {
+    const closeCreateModal = useCallback(() => {
         setShowCreateModal(false);
-    };
+    }, []);
 
     /**
      * 拖拽开始：把棋子中文名存入 dataTransfer
@@ -2042,7 +2044,7 @@ const LineupsPage: React.FC = () => {
             // 所有格子都满了，不做任何操作
             return prev;
         });
-    }, []);
+    }, [LEVEL_CONFIG]);
 
     /**
      * 拖拽经过格子：允许放置 + 高亮当前格子
@@ -2114,7 +2116,7 @@ const LineupsPage: React.FC = () => {
             // 深拷贝每个 ChampionSlot，避免两行共享同一个引用
             [nextKey]: prev[currentKey].map(slot => ({ ...slot, equips: [...slot.equips] })),
         }));
-    }, []);
+    }, [LEVEL_CONFIG]);
 
     /**
      * 获取棋子头像 URL（用于创建阵容弹窗内）
@@ -2142,7 +2144,7 @@ const LineupsPage: React.FC = () => {
             .filter(cfg => cfg.required)
             .every(cfg => levelChampions[cfg.key]?.length === cfg.level);
         return hasName && allRequiredFull;
-    }, [customLineupName, levelChampions]);
+    }, [customLineupName, levelChampions, LEVEL_CONFIG]);
 
     /**
      * 保存自定义阵容
@@ -2277,8 +2279,7 @@ const LineupsPage: React.FC = () => {
             console.error('保存阵容失败:', err);
             toast.error(`保存失败: ${err.message || '未知错误'}`);
         }
-    }, [customLineupName, activeTab, levelChampions]);
-
+    }, [customLineupName, activeTab, levelChampions, closeCreateModal, LEVEL_CONFIG]);
     /**
      * 删除玩家自建阵容
      * @param lineupId 阵容 ID
@@ -2447,7 +2448,7 @@ const LineupsPage: React.FC = () => {
         
         // 将 Set 转换为数组保存
         const idsArray = Array.from(selectedIds);
-        window.lineup.setSelectedIds(idsArray).catch(err => {
+        window.lineup.setSelectedIds(idsArray).catch((err: unknown) => {
             console.error('保存选中状态失败:', err);
         });
     }, [selectedIds, loading]);
@@ -2564,7 +2565,7 @@ const LineupsPage: React.FC = () => {
         }
         if (highestChampions.length === 0) return [];
         return calculateTraits(highestChampions as any, activeTab);
-    }, [levelChampions, activeTab]);
+    }, [levelChampions, activeTab, LEVEL_CONFIG]);
 
     // 加载中状态
     if (loading) {

@@ -21,7 +21,7 @@ import { LobbyState } from "./LobbyState";
 import { EndState } from "./EndState";
 import LCUManager, { LcuEventUri, LCUWebSocketMessage } from "../lcu/LCUManager";
 import { GameFlowPhase } from "../lcu/utils/LCUProtocols";
-import { gameStageMonitor, GameStageEvent } from "../services/GameStageMonitor";
+import { gameStageMonitor } from "../services/GameStageMonitor";
 import { strategyService } from "../services/StrategyService";
 import { gameStateManager } from "../services/GameStateManager";
 import { logger } from "../utils/Logger";
@@ -267,7 +267,7 @@ export class GameRunningState implements IState {
             /**
              * 发条鸟模式：监听 stageChange 事件，用于重置超时计时器
              */
-            const onStageChange = (_event: GameStageEvent) => {
+            const onStageChange = () => {
                 logger.debug("[GameRunningState] 发条鸟模式：收到 stageChange 事件，重置超时计时器");
                 resetStageTimeout();
             };
@@ -301,7 +301,7 @@ export class GameRunningState implements IState {
              *              
              *              发条鸟模式不走这条路，发条鸟靠 clockworkDead 事件 + 点击退出按钮
              */
-            const onBattlePass = async (_eventData: LCUWebSocketMessage) => {
+            const onBattlePass = async () => {
                 if (hasTriedQuit) return; // 避免重复调用
                 hasTriedQuit = true;
 

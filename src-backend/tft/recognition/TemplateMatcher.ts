@@ -9,7 +9,7 @@ import path from "path";
 import fs from "fs-extra";
 import sharp from "sharp";
 import {logger} from "../../utils/Logger";
-import {IdentifiedEquip, EquipCategory, EQUIP_CATEGORY_PRIORITY, LootOrb, LootOrbType} from "../types";
+import {IdentifiedEquip, EQUIP_CATEGORY_PRIORITY, LootOrb} from "../types";
 import {TFT_16_EQUIP_DATA} from "../../TFTProtocol";
 import {templateLoader} from "./TemplateLoader";
 
@@ -392,12 +392,8 @@ export class TemplateMatcher {
                 const templateHeight = templateMat.rows;
 
                 // 使用循环查找所有匹配点
-                while (true) {
-                    const minMax = cv.minMaxLoc(resultMat, mask);
-                    
-                    if (minMax.maxVal < MATCH_THRESHOLDS.LOOT_ORB) {
-                        break; // 没有更多匹配点了
-                    }
+                let minMax = cv.minMaxLoc(resultMat, mask);
+                while (minMax.maxVal >= MATCH_THRESHOLDS.LOOT_ORB) {
 
                     const matchX = minMax.maxLoc.x;
                     const matchY = minMax.maxLoc.y;
@@ -428,6 +424,8 @@ export class TemplateMatcher {
                         new cv.Scalar(-1),
                         -1 // 填充矩形
                     );
+
+                    minMax = cv.minMaxLoc(resultMat, mask);
                 }
             }
 

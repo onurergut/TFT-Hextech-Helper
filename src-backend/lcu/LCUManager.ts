@@ -243,14 +243,7 @@ class LCUManager extends EventEmitter {
         const startTime = Date.now();
         const retryIntervalMs = 2000;
 
-        while (true) {
-            // 检查是否超时
-            if (Date.now() - startTime > timeoutMs) {
-                throw new Error(
-                    `[LCUManager] API 服务在 ${timeoutMs / 1000} 秒内未就绪，请检查客户端状态`
-                );
-            }
-
+        while (Date.now() - startTime <= timeoutMs) {
             try {
                 // 使用 /riotclient/ux-state 作为健康检查端点
                 await this.request("GET", "/riotclient/ux-state");
@@ -262,6 +255,10 @@ class LCUManager extends EventEmitter {
                 await new Promise((resolve) => setTimeout(resolve, retryIntervalMs));
             }
         }
+
+        throw new Error(
+            `[LCUManager] API 服务在 ${timeoutMs / 1000} 秒内未就绪，请检查客户端状态`
+        );
     }
 
     //  一堆专注于后端使用的方法
