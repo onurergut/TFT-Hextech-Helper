@@ -1153,7 +1153,7 @@ export const HomePage = () => {
      * 只有在 LCU 已连接时才会调用
      * 支持重试机制，最多重试 3 次
      */
-    const fetchSummonerInfo = async (retryCount = 0) => {
+    const fetchSummonerInfo = useCallback(async (retryCount = 0) => {
         const maxRetries = 3;
         const retryDelay = 1000; // 1秒后重试
         
@@ -1183,7 +1183,7 @@ export const HomePage = () => {
                 setIsLoading(false); // 重试次数用尽
             }
         }
-    };
+    }, []);
 
     // 组件挂载时：检查连接状态 + 监听连接/断开事件 + 获取运行状态
     useEffect(() => {
@@ -1258,7 +1258,7 @@ export const HomePage = () => {
             cleanupConnect();
             cleanupDisconnect();
         };
-    }, []);
+    }, [fetchSummonerInfo]);
 
     // 订阅统计数据变化 + 运行时长计时器
     useEffect(() => {

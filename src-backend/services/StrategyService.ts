@@ -254,7 +254,7 @@ export class StrategyService {
             return;
         }
 
-        const {type, stageText, stage, round, isNewStage} = event;
+        const {type, stage, round} = event;
 
         // 更新当前阶段/回合
         this.currentStage = stage;
@@ -2219,18 +2219,7 @@ export class StrategyService {
         // 走动间隔（毫秒）
         const walkInterval = 3000;
 
-        while (true) {
-            // 退出条件 1：战斗状态发生变化（非战斗→战斗 或 战斗→非战斗）
-            if (this.isFighting() !== entryFightingState) {
-                logger.info("[StrategyService] 检测到战斗状态变化，退出防挂机循环");
-                break;
-            }
-
-            // 退出条件 2：回合发生变化（说明进入了新回合）
-            if (this.currentStage !== entryStage || this.currentRound !== entryRound) {
-                logger.info("[StrategyService] 检测到回合变化，退出防挂机循环");
-                break;
-            }
+        while (this.isFighting() === entryFightingState && this.currentStage === entryStage && this.currentRound === entryRound) {
 
             // 执行一次随机走动
             try {
@@ -2410,7 +2399,7 @@ export class StrategyService {
         const snapshot = gameStateManager.getSnapshotSync();
         if (!snapshot) return;
 
-        let {level, currentXp, totalXp, gold} = snapshot;
+        const {level, currentXp, totalXp, gold} = snapshot;
 
         // 已达最大等级 (10 为上限)
         if (level >= 10 || totalXp <= 0) return;
@@ -3122,18 +3111,15 @@ export class StrategyService {
         // 点击间隔（毫秒）
         const clickInterval = 2000;
 
-        while (true) {
-            // 检查是否已经进入下一个回合（stageText 变化说明选秀结束）
-            if (gameStageMonitor.stageText !== entryStageText) {
-                logger.info("[StrategyService] 选秀阶段结束，进入下一回合");
-                break;
-            }
+        while (gameStageMonitor.stageText === entryStageText) {
             // 右键点击选秀位置（小小英雄会自动走向最近的棋子）
             await mouseController.clickAt(sharedDraftPoint, MouseButtonType.RIGHT);
             logger.debug(`[StrategyService] 选秀点击: (${sharedDraftPoint.x}, ${sharedDraftPoint.y})`);
             // 等待 3 秒后再次点击
             await sleep(clickInterval);
         }
+
+        logger.info("[StrategyService] 选秀阶段结束，进入下一回合");
     }
 
     /**

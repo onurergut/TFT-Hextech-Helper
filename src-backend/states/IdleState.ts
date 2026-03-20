@@ -20,7 +20,7 @@ export class IdleState implements IState {
      * @returns 返回自身，保持空闲状态
      * @description 空闲状态下不做任何操作，等待外部触发状态转换
      */
-    async action(_signal: AbortSignal): Promise<IState> {
+    async action(): Promise<IState> {
         // 空闲状态不执行任何操作，保持当前状态
         return this;
     }

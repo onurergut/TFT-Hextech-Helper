@@ -1341,6 +1341,7 @@ class TftOperator {
         } else if (recognizedName && recognizedName.length > 0) {
             logger.warn(`[${type}槽位 ${slot}] 匹配到模板但名称未知: ${recognizedName}`, true);
         } else {
+            void imageBuffer;
             logger.warn(`[${type}槽位 ${slot}] 识别失败`, true);
             // 【已注释】保存识别失败的截图到本地，用于排查问题
             // const filename = `fail_${type}_slot_${slot}_${Date.now()}.png`;
